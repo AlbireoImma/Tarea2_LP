@@ -186,7 +186,7 @@ public:
 	Lista Columnas;
 	Dispersa();
 	void set_limit(int col,int fil);
-	int input_val(int i,int j, int val);
+	int input_val(int i,int j, int val,bool sum);
 	void print_dispersa();
 	void print_info();
 	void swap_m_n();
@@ -222,21 +222,43 @@ void Dispersa::swap_m_n(){
 	return;
 }
 
-int Dispersa::input_val(int i,int j, int val,bool over){
+int Dispersa::input_val(int i,int j, int val,bool sum){
 	if (i > n_fil) return 0;
 	if (j > n_col) return 0;
-	if (over == true)
+	if (sum == true)
 	{
 		Filas.toHome();
 		Columnas.toHome();
 		Valores.toHome();
 		int a;
-		for (a = 0; i < n_elem; i++)
+		for (a = 0; a < n_elem; a++)
 		{
-			if ()
+			if (Filas.getval() == i and j == Columnas.getval())
 			{
-				
+				Valores.curr->sig->info = Valores.curr->sig->info + val;
+				return 1;
 			}
+		Filas.next();
+		Columnas.next();
+		Valores.next();
+		}
+	}
+	if (sum == false)
+	{
+		Filas.toHome();
+		Columnas.toHome();
+		Valores.toHome();
+		int a;
+		for (a = 0; a < n_elem; a++)
+		{
+			if (Filas.getval() == i and j == Columnas.getval())
+			{
+				Valores.curr->sig->info = val;
+				return 1;
+			}
+			Filas.next();
+			Columnas.next();
+			Valores.next();
 		}
 	}
 	Valores.insertar(val);
@@ -313,7 +335,7 @@ void free_dispersa(void* A){
 }
 
 int ingresar_valor(void* A, int i, int j, int valor){
-	int a = ((Dispersa *)A)->input_val(i,j,valor);
+	int a = ((Dispersa *)A)->input_val(i,j,valor,false);
 	return a;
 }
 
@@ -323,47 +345,32 @@ void imprimir_matriz(void* A){
 }
 
 void* suma(void* A,void* B){
-	((Dispersa *)A);
-	(Dispersa *)B;
-	static Dispersa C;
-	bool Flag = true;
-	int i,j;
-	int valor;
-	int elem_C=0;
+	Dispersa *D;
+	D = (Dispersa*)alloc_dispersa(((Dispersa *)A)->n_fil,((Dispersa *)A)->n_col);
+	int i;
 	int elem_A = ((Dispersa *)A)->n_elem;
 	int elem_B = ((Dispersa *)B)->n_elem;
+	((Dispersa *)A)->Valores.toHome();
 	((Dispersa *)A)->Filas.toHome();
 	((Dispersa *)A)->Columnas.toHome();
-	((Dispersa *)A)->Valores.toHome();
-	((Dispersa *)B)->Filas.toHome();
-	((Dispersa *)B)->Columnas.toHome();
-	((Dispersa *)B)->Valores.toHome();
 	for (i = 0; i < elem_A; i++)
 	{
-		j = 0;
-		valor = ((Dispersa *)A)->Valores.getval();
-		while(j < elem_B){
-			if (((Dispersa *)A)->Filas.getval() == ((Dispersa *)B)->Filas.getval() and ((Dispersa *)A)->Columnas.getval() == ((Dispersa *)B)->Columnas.getval()){
-				valor = valor + ((Dispersa *)B)->Valores.getval();
-				Flag = false;
-				C.input_val(((Dispersa *)A)->Filas.getval(),((Dispersa *)A)->Columnas.getval(),valor);
-				break;
-			}
-			else{
-				((Dispersa *)B)->Filas.next();
-				((Dispersa *)B)->Columnas.next();
-				((Dispersa *)B)->Valores.next();
-				j++;
-			}
-		}
-		((Dispersa *)B)->Filas.toHome();
-		((Dispersa *)B)->Columnas.toHome();
-		((Dispersa *)B)->Valores.toHome();
-		if (Flag){
-			C.input_val(((Dispersa *)A)->Filas.getval(),((Dispersa *)A)->Columnas.getval(),valor);
-		}
-		Flag = true;
+		D->input_val(((Dispersa *)A)->Filas.getval(),((Dispersa *)A)->Columnas.getval(),((Dispersa *)A)->Valores.getval(),false);
+		((Dispersa *)A)->Valores.next();
+		((Dispersa *)A)->Filas.next();
+		((Dispersa *)A)->Columnas.next();
 	}
+	((Dispersa *)B)->Valores.toHome();
+	((Dispersa *)B)->Filas.toHome();
+	((Dispersa *)B)->Columnas.toHome();
+	for (i = 0; i < elem_B; i++)
+	{
+		D->input_val(((Dispersa *)B)->Filas.getval(),((Dispersa *)B)->Columnas.getval(),((Dispersa *)B)->Valores.getval(),true);
+		((Dispersa *)B)->Valores.next();
+		((Dispersa *)B)->Filas.next();
+		((Dispersa *)B)->Columnas.next();
+	}
+	return (void *)D;
 }
 
 void* multiplicacion(void* A, void* B){}
@@ -389,19 +396,28 @@ int main(int argc, char const *argv[])
 	cout << "---------------------" << endl;
 	cout << "|\t\tMain\t\t|" << endl;
 	Dispersa *A;
+	Dispersa *B;
+	Dispersa *C;
 	//Dispersa *B;
 	A = (Dispersa*)alloc_dispersa(3,3);
-	ingresar_valor((void *)A,1,1,5);
-	A->input_val(1,3,1);
-	A->input_val(2,1,2);
-	A->input_val(3,1,3);
-	A->input_val(3,3,3);
+	B = (Dispersa*)alloc_dispersa(3,3);
+	ingresar_valor((void *)A,1,1,1);
+	ingresar_valor((void *)A,1,3,2);
+	ingresar_valor((void *)A,2,1,3);
+	ingresar_valor((void *)A,3,1,4);
+	ingresar_valor((void *)A,3,3,5);
 	imprimir_matriz((void *)A);
-	diagonal((void *)A);
-	imprimir_matriz((void *)A);
+	ingresar_valor((void *)B,1,1,1);
+	ingresar_valor((void *)B,1,3,2);
+	ingresar_valor((void *)B,2,1,3);
+	ingresar_valor((void *)B,3,1,4);
+	ingresar_valor((void *)B,3,3,5);
+	imprimir_matriz((void *)B);
+	C = (Dispersa *)suma((void *)A,(void *)B);
+	imprimir_matriz((void *)C);
 	//B = (Dispersa*)alloc_dispersa(4,4);
 	//B->print_dispersa();
 	free_dispersa((void *)A);
-	//free_dispersa((void *)B);
+	free_dispersa((void *)B);
 	return 0;
 }
