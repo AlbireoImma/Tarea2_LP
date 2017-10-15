@@ -373,9 +373,9 @@ void* suma(void* A,void* B){
 	return (void *)D;
 }
 
-void* multiplicacion(void* A, void* B){}
+void* multiplicacion(void* A, void* B){}						// En Desarollo
 
-void binaria(void* (*fun)(void*,void*), void* A,void* B){}
+void binaria(void* (*fun)(void*,void*), void* A,void* B){}		// En Desarollo
 
 void* transponer(void* A){
 	((Dispersa *)A)->swap_m_n();
@@ -387,9 +387,9 @@ void* diagonal(void* A){
 	return (void *)A;
 }
 
-void unaria(void* (*fun)(void*), void* A){}
+void unaria(void* (*fun)(void*), void* A){}						// En Desarollo
 
-void* element_wise_op(int (*fun)(int), void* A){}
+void* element_wise_op(int (*fun)(int), void* A){}				// En Desarollo
 
 int main(int argc, char const *argv[])
 {
@@ -407,11 +407,11 @@ int main(int argc, char const *argv[])
 	ingresar_valor((void *)A,3,1,4);
 	ingresar_valor((void *)A,3,3,5);
 	imprimir_matriz((void *)A);
-	ingresar_valor((void *)B,1,1,1);
-	ingresar_valor((void *)B,1,3,2);
-	ingresar_valor((void *)B,2,1,3);
-	ingresar_valor((void *)B,3,1,4);
-	ingresar_valor((void *)B,3,3,5);
+	ingresar_valor((void *)B,2,1,5);
+	ingresar_valor((void *)B,1,2,4);
+	ingresar_valor((void *)B,2,2,3);
+	ingresar_valor((void *)B,3,1,1);
+	ingresar_valor((void *)B,3,2,3);
 	imprimir_matriz((void *)B);
 	C = (Dispersa *)suma((void *)A,(void *)B);
 	imprimir_matriz((void *)C);
