@@ -373,7 +373,37 @@ void* suma(void* A, void* B){
 	return (void *)D;
 }
 
-void* multiplicacion(void* A, void* B);
+void* multiplicacion(void* A, void* B){
+	Matriz *C;
+	C = (Matriz *)alloc_dispersa(((Matriz *)A)->n_filas,((Matriz *)B)->n_col);
+	int i,valor,fila,j;
+	toHome(((Matriz *)A)->Valores);
+	toHome(((Matriz *)A)->Filas);
+	toHome(((Matriz *)A)->Columnas);
+	toHome(((Matriz *)B)->Valores);
+	toHome(((Matriz *)B)->Filas);
+	toHome(((Matriz *)B)->Columnas);
+	for (i = 0; i < ((Matriz *)A)->n_elem; i++)
+	{
+		for (j = 0; j < ((Matriz *)B)->n_elem; j++)
+		{
+			if (getval(((Matriz *)A)->Columnas)==getval(((Matriz *)B)->Filas))
+			{
+				input_val(getval(((Matriz *)A)->Filas),getval(((Matriz *)B)->Columnas),getval(((Matriz *)A)->Valores)*getval(((Matriz *)B)->Valores),1,C);
+			}
+			next(((Matriz *)B)->Valores);
+			next(((Matriz *)B)->Filas);
+			next(((Matriz *)B)->Columnas);
+		}
+		toHome(((Matriz *)B)->Valores);
+		toHome(((Matriz *)B)->Filas);
+		toHome(((Matriz *)B)->Columnas);
+		next(((Matriz *)A)->Valores);
+		next(((Matriz *)A)->Filas);
+		next(((Matriz *)A)->Columnas);
+	}
+	return C;
+}
 
 void binaria(void* (*fun)(void*,void*), void* A, void* B);
 
@@ -396,17 +426,22 @@ int main(int argc, char const *argv[])
 	Matriz *C;
 	A = (Matriz *)alloc_dispersa(3,3);
 	B = (Matriz *)alloc_dispersa(3,3);
-	ingresar_valor((void *)B,3,3,14);
-	ingresar_valor((void *)B,1,2,21);
-	ingresar_valor((void *)B,3,2,11);
-	ingresar_valor((void *)B,2,2,-4);
-	ingresar_valor((void *)A,3,3,1);
-	ingresar_valor((void *)A,1,2,1);
-	ingresar_valor((void *)A,3,2,1);
+	ingresar_valor((void *)A,1,1,2);
+	ingresar_valor((void *)A,1,3,2);
+	ingresar_valor((void *)A,2,1,1);
 	ingresar_valor((void *)A,2,2,1);
-	imprimir_matriz((void *)B);
+	ingresar_valor((void *)A,2,3,1);
+	ingresar_valor((void *)A,3,1,2);
+	ingresar_valor((void *)A,3,3,1);
+	ingresar_valor((void *)B,1,1,1);
+	ingresar_valor((void *)B,1,2,1);
+	ingresar_valor((void *)B,1,3,1);
+	ingresar_valor((void *)B,2,2,1);
+	ingresar_valor((void *)B,2,3,2);
+	ingresar_valor((void *)B,3,1,1);
 	imprimir_matriz((void *)A);
-	C = (Matriz *)suma((void *)A,(void *)B);
+	imprimir_matriz((void *)B);
+	C = (Matriz *)multiplicacion((void *)A,(void *)B);
 	imprimir_matriz(C);
 	free_dispersa(B);
 	free_dispersa(A);
