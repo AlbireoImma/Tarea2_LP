@@ -215,8 +215,36 @@ Matriz *swap_m_n(Matriz *A){
 }
 
 int input_val(int i, int j, int val, int sum, Matriz *A){
-	if (i > A->n_filas) return 0;
-	if (j > A->n_col) return 0;
+	if (i > A->n_filas){
+		printf("Fuera de la dimension de la matriz\n");
+		exit(0);
+	}
+	if (j > A->n_col){
+		printf("Fuera de la dimension de la matriz\n");
+		exit(0);
+	}
+	if (val == 0 && sum == 0){
+		toHome(A->Filas);
+		toHome(A->Columnas);
+		toHome(A->Valores);
+		int a;
+		for (a = 0; a < A->n_elem; a++)
+		{
+			if (getval(A->Filas) == i && j == getval(A->Columnas)){
+				eliminar_lista(A->Valores);
+				eliminar_lista(A->Filas);
+				eliminar_lista(A->Columnas);
+				A->n_elem--;
+				toHome(A->Filas);
+				toHome(A->Columnas);
+				toHome(A->Valores);
+				return 1;
+			}
+			next(A->Filas);
+			next(A->Columnas);
+			next(A->Valores);
+		}
+	} 
 	if (sum == 1)
 	{
 		toHome(A->Filas);
@@ -375,8 +403,13 @@ void* suma(void* A, void* B){
 
 void* multiplicacion(void* A, void* B){
 	Matriz *C;
+	if (((Matriz *)A)->n_col!=((Matriz *)B)->n_filas)
+	{
+		printf("Error de dimensiones al multiplicar\n");
+		exit(0);
+	}
 	C = (Matriz *)alloc_dispersa(((Matriz *)A)->n_filas,((Matriz *)B)->n_col);
-	int i,valor,fila,j;
+	int i,j;
 	toHome(((Matriz *)A)->Valores);
 	toHome(((Matriz *)A)->Filas);
 	toHome(((Matriz *)A)->Columnas);
@@ -405,9 +438,26 @@ void* multiplicacion(void* A, void* B){
 	return C;
 }
 
-void binaria(void* (*fun)(void*,void*), void* A, void* B);
-
-void* Trasponer(void* A);
+void* trasponer(void* A){
+	Matriz *B;
+	int i;
+	B = crear_matriz();
+	set_limit(((Matriz *)A)->n_col,((Matriz *)A)->n_filas,B);
+	toHome(((Matriz *)A)->Valores);
+	toHome(((Matriz *)A)->Filas);
+	toHome(((Matriz *)A)->Columnas);
+	for (i = 0; i < ((Matriz *)A)->n_elem; i++)
+	{
+		if(input_val(getval(((Matriz *)A)->Columnas),getval(((Matriz *)A)->Filas),getval(((Matriz *)A)->Valores),0,B)==0){
+			printf("Error al insertar valores\n");
+			exit(1);
+		}
+		next(((Matriz *)A)->Valores);
+		next(((Matriz *)A)->Filas);
+		next(((Matriz *)A)->Columnas);
+	}
+	return B;
+}
 
 void* diagonal(void* A){
 	Matriz *B;
@@ -415,36 +465,57 @@ void* diagonal(void* A){
 	return B;
 }
 
+void *element_wise_op(int (*fun)(int), void* A){
+	int i;
+	Matriz *Aux;
+	Aux = crear_matriz();
+	set_limit(((Matriz *)A)->n_filas,((Matriz *)A)->n_col,Aux);
+	toHome(((Matriz *)A)->Valores);
+	toHome(((Matriz *)A)->Filas);
+	toHome(((Matriz *)A)->Columnas);
+	for (i = 0; i < ((Matriz *)A)->n_elem; i++){
+		if (fun(getval(((Matriz *)A)->Valores)) != 0)
+		{
+			input_val(getval(((Matriz *)A)->Filas),getval(((Matriz *)A)->Columnas),fun(getval(((Matriz *)A)->Valores)),0,Aux);
+			next(((Matriz *)A)->Valores);
+			next(((Matriz *)A)->Filas);	
+			next(((Matriz *)A)->Columnas);
+		}
+		else{
+			next(((Matriz *)A)->Valores);
+			next(((Matriz *)A)->Filas);	
+			next(((Matriz *)A)->Columnas);
+		}
+	}
+	toHome(((Matriz *)A)->Valores);
+	toHome(((Matriz *)A)->Filas);
+	toHome(((Matriz *)A)->Columnas);
+	free_dispersa(A);
+	A = (void *)Aux;
+	return A;
+}
+
 void unaria(void* (*fun)(void*), void* A);
 
-void element_wise_op(int (*fun)(int), void* A);
+void binaria(void* (*fun)(void*,void*), void* A, void* B);
+
+int funcion(int a){
+	return (a-1);
+}
 
 int main(int argc, char const *argv[])
 {
 	Matriz *A;
-	Matriz *B;
-	Matriz *C;
-	A = (Matriz *)alloc_dispersa(3,3);
-	B = (Matriz *)alloc_dispersa(3,3);
+	int (*foo)(int);
+	foo = &funcion;
+	A = (Matriz *)alloc_dispersa(5,3);
 	ingresar_valor((void *)A,1,1,2);
-	ingresar_valor((void *)A,1,3,2);
-	ingresar_valor((void *)A,2,1,1);
-	ingresar_valor((void *)A,2,2,1);
-	ingresar_valor((void *)A,2,3,1);
-	ingresar_valor((void *)A,3,1,2);
-	ingresar_valor((void *)A,3,3,1);
-	ingresar_valor((void *)B,1,1,1);
-	ingresar_valor((void *)B,1,2,1);
-	ingresar_valor((void *)B,1,3,1);
-	ingresar_valor((void *)B,2,2,1);
-	ingresar_valor((void *)B,2,3,2);
-	ingresar_valor((void *)B,3,1,1);
+	ingresar_valor((void *)A,1,2,1);
+	ingresar_valor((void *)A,1,3,3);
+	ingresar_valor((void *)A,2,1,4);
 	imprimir_matriz((void *)A);
-	imprimir_matriz((void *)B);
-	C = (Matriz *)multiplicacion((void *)A,(void *)B);
-	imprimir_matriz(C);
-	free_dispersa(B);
+	ingresar_valor((void *)A,1,1,0);
+	print_dispersa(A);
 	free_dispersa(A);
-	free_dispersa(C);
 	return 0;
 }
